@@ -5,12 +5,12 @@
 while :; do
    pg_ready=$(pg_isready -U postgres)
    if [ "$pg_ready" -eq 0 ]; then
-     psql -U postgres -c "CREATE USER replicator WITH REPLICATION ENCRYPTED PASSWORD 'passwd3857';"
+     psql -U postgres -c "CREATE USER replicator WITH REPLICATION ENCRYPTED PASSWORD '${REPLICATOR_PASS}';"
 	 break
    fi
 done
 
-echo host replication replicator 172.17.0.3/16 trust >> "$PGDATA/pg_hba.conf"
+echo "host replication replicator ${STAND_BY_ADDR} md5" >> "$PGDATA/pg_hba.conf"
 
 cat << FOE >> /var/lib/postgres/data/postgresql.conf
 
