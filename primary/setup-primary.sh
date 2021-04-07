@@ -7,12 +7,12 @@ until pg_isready -h localhost -U postgres
 do
   sleep 2;
 done
-
+echo "Posgres is ready"
 psql -U postgres -c "CREATE USER replicator WITH REPLICATION ENCRYPTED PASSWORD '${REPLICATOR_PASS}';"
 
 echo "host replication replicator ${STAND_BY_ADDR} md5" >> "$PGDATA/pg_hba.conf"
 
-cat << FOE >> /var/lib/postgres/data/postgresql.conf
+cat << FOE >> "$PGDATA/postgresql.conf"
 
 cat timezone = 'UTC'
 log_timezone = 'UTC'

@@ -1,2 +1,2 @@
 FROM postgres:12.6-alpine
-COPY ./setup-primary.sh /docker-entrypoint-initdb.d/setup-db.shgit
+COPY ./setup-primary.sh /docker-entrypoint-initdb.d/setup-db.sh
