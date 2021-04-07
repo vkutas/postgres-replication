@@ -2,13 +2,13 @@
 
 # Wait until Postgres will be ready to accept connections 
 # and then create the role to connect from s stand by server
-while :; do
-   pg_ready=$(pg_isready -U postgres)
-   if [ "$pg_ready" -eq 0 ]; then
-     psql -U postgres -c "CREATE USER replicator WITH REPLICATION ENCRYPTED PASSWORD '${REPLICATOR_PASS}';"
-	 break
-   fi
+
+until pg_isready -h localhost -U postgres
+do
+  sleep 2;
 done
+
+psql -U postgres -c "CREATE USER replicator WITH REPLICATION ENCRYPTED PASSWORD '${REPLICATOR_PASS}';"
 
 echo "host replication replicator ${STAND_BY_ADDR} md5" >> "$PGDATA/pg_hba.conf"
 
