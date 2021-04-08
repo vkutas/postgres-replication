@@ -3,9 +3,9 @@
 rm -r ${PGDATA}/*
 # Make base copy
 
-sudo echo "${PRIMARY_ADDR}:5432:*:replicator:${REPLICATOR_PASS}" > /var/lib/postgresql/.pgpass
-sudo chown postgres:postgres /var/lib/postgresql/.pgpass
-sudo chmod 0600 /var/lib/postgresql/.pgpass
+echo "${PRIMARY_ADDR}:5432:*:replicator:${REPLICATOR_PASS}" > /var/lib/postgresql/.pgpass
+chown postgres:postgres /var/lib/postgresql/.pgpass
+chmod 0600 /var/lib/postgresql/.pgpass
 pg_basebackup -h "$PRIMARY_ADDR" -p 5432 -U replicator -D "${PGDATA}/" -Fp -Xs -R
 
 
