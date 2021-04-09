@@ -30,11 +30,31 @@ log_disconnections = on
 log_lock_waits = on
 log_temp_files = 0
 log_autovacuum_min_duration = 0
-log_error_verbosity = default
-
-# Sync Replica Cluster Name
-synchronous_standby_names = sync_standby_node   
-synchronous_commit = on      
+log_error_verbosity = default  
 FOE
 
+
+if [ $SYNC_REPLICATION_ON == 1 ]; then
+  cat << FOE >> "$PGDATA/postgresql.conf"
+
+  synchronous_standby_names = sync_standby_node   
+  synchronous_commit = on    
+
+FOE
+
+fi
+
+# Create DB fro tests
+psql -U postgres -c 'CREATE DATABASE play;'
+
+psql -U postgres -d play -c "
+
+CREATE TABLE IF NOT EXISTS dates_series (
+   id serial PRIMARY KEY,
+   date timestamp,
+   value int
+);
+"
+
 psql -U postgres -c "SELECT pg_reload_conf();"
+

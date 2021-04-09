@@ -5,4 +5,4 @@ else
     version='latest'
 fi        
 
-docker build -t standby:${version} .
+docker build -t primary:${version} .
