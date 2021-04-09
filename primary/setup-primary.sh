@@ -37,7 +37,7 @@ FOE
 if [ $SYNC_REPLICATION_ON == 1 ]; then
   cat << FOE >> "$PGDATA/postgresql.conf"
 
-  synchronous_standby_names = sync_standby_node   
+  synchronous_standby_names = replica   
   synchronous_commit = on    
 
 FOE

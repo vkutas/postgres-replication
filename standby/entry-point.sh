@@ -282,6 +282,7 @@ init_standby() {
     for ((i=0;i<=4;i++)); do
     if  pg_isready -h "$PRIMARY_ADDR" -U postgres; then
         pg_basebackup -h "$PRIMARY_ADDR" -U replicator -D "${PGDATA}/" -Fp -Xs -R -w
+		echo "cluster_name = replica" >> "${PGDATA}/"postgresql.conf
         break;
     else
         sleep 5;
