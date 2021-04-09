@@ -76,7 +76,7 @@ standby   entry-point.sh postgres         Up      5432/tcp
      tps = 2980.141159 (including connections establishing)  
      tps = 2980.558788 (excluding connections establishing)   
      
-6. Теперь, получив достатчное количесво логов, можно проанализировать их с помощью bgbadger
+6. Теперь, получив достаточное количество логов, можно проанализировать их с помощью bgbadger
 
   ```sh
   docker cp primary:/var/lib/postgresql/data/pg_log  .
