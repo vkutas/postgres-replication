@@ -48,9 +48,41 @@ standby   entry-point.sh postgres         Up      5432/tcp
 `docker-compose logs` - для обоих контейнеров
 `docker logs primary` и `docker logs stanby` - для каждого в отдельности
 
-4. C помомью скрипта [test-replication-lag.sh](/test-replication-lag.sh) можно примерно оценить задержку репликации.
+4. C помощью скрипта [test-replication-lag.sh](/test-replication-lag.sh) можно примерно оценить задержку репликации.
 
 В нем создаётся база данных `play` с таблицей `dates_series`, которая заполняется с помощью [generate_series](https://www.postgresql.org/docs/12/functions-srf.html). При каждой вствка выводится время выполения запроса и примерное время задержки репликации, которое вычисляется по формуле `now()-pg_last_xact_replay_timestamp()` на стороне standby сервера.
 
 
+5. C помощью [pgbench.sh](pgbench.sh) можно запустить простой бенчмарк. Скрипт состоит всего из 3 команд: 
 
+    Создание БД для запуска бенчмарка  
+    `docker exec primary /bin/bash -c "echo \"SELECT 'CREATE DATABASE pgbench' WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = 'pgbench')\gexec\" | psql -U postgres"` 
+
+    Инициализация БД данными на 800 MB (5 000 000 записей)  
+    `docker exec --user postgres primary pgbench -i -s 50 pgbench`  
+
+    Запускаем проверку baseline performance с 12 клиентами и 2 потоками  
+    `docker exec --user postgres primary pgbench -c 10 -j 2 -t 10000 pgbench`  
+
+  Результат может выглядить так:
+
+    
+     transaction type: <builtin: TPC-B (sort of)>  
+     scaling factor: 50  
+     query mode: simple  
+     number of clients: 10  
+     number of threads: 2  
+     number of transactions per client: 10000  
+     number of transactions actually processed: 100000/100000  
+     latency average = 3.356 ms  
+     tps = 2980.141159 (including connections establishing)  
+     tps = 2980.558788 (excluding connections establishing)   
+     
+6. Теперь получив достатчное количесво логов, ожно проанализировать и с помощью bgbadger
+
+  ```sh
+  docker cp primary:/var/lib/postgresql/data/pg_log  .
+  pgbadger postgresql-2021-04-09_14* 
+  ```
+
+Пример отчёта можно увидеть в [/pgbadger_reports](/pgbadger_reports)
