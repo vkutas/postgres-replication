@@ -5,17 +5,19 @@
 
 until pg_isready -U postgres
 do
-  sleep 1;
+  sleep 2;
 done
 echo "Posgres is ready"
+
+# Create user with accees to replication pseudo-DB
 psql -U postgres -c "CREATE USER replicator WITH REPLICATION ENCRYPTED PASSWORD '${REPLICATOR_PASS}';"
 
 echo "host replication replicator ${STAND_BY_ADDR} md5" >> "$PGDATA/pg_hba.conf"
 
 cat << FOE >> "$PGDATA/postgresql.conf"
 
-timezone = 'UTC'
-log_timezone = 'UTC'
+timezone = 'Europe/Minsk'
+log_timezone = 'Europe/Minsk'
 log_statement = 'all'
 log_directory = 'pg_log'
 log_filename = 'postgresql-%Y-%m-%d_%H%M%S.log'
