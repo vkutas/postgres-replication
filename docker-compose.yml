@@ -1,0 +1,43 @@
+version: "3.9"
+
+services:
+
+  primary:
+    build: primary/.
+    container_name: primary
+    restart: unless-stopped
+    env_file:
+      - .env    
+    volumes:
+      - primary:/var/lib/postgresql/data
+    networks: 
+        db_network:
+          ipv4_address: 192.168.99.2
+
+  
+  standby:
+    build: standby/.
+    container_name: standby
+    restart: unless-stopped
+    depends_on: 
+      - primary
+    env_file:
+      - .env    
+    volumes:
+      - standby:/var/lib/postgresql/data
+    networks: 
+      db_network:
+        ipv4_address: 192.168.99.3
+
+
+volumes:
+    primary:
+    standby:
+
+networks: 
+    db_network:
+      driver: bridge
+      ipam:
+        config:
+         - subnet: 192.168.99.0/24
+           gateway: 192.168.99.1

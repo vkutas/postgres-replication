@@ -1,4 +1,4 @@
 .env
 build.sh
-exec-bash.sh
+exec-*
 run.sh

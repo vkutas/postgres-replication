@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Create DB for tests
+docker exec primary /bin/bash -c "echo \"SELECT 'CREATE DATABASE play' WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = 'play')\gexec\" | psql -U postgres"
+
 docker exec primary psql -U postgres -d play -c "
 
 CREATE TABLE IF NOT EXISTS dates_series (
@@ -22,6 +25,12 @@ for ((i=0;i<30;i++)); do
 
    replication_lag=$(docker exec standby psql -U postgres -t -c "SELECT now()-pg_last_xact_replay_timestamp();")
    echo "----------------------------"
-   printf "%s\nReplication time: %s\n" "$(echo "$query" | grep -oP 'Execution Time: .* ms')" "$replication_lag"
+   printf "%s\nReplication lag: %s\n" "$(echo "$query" | grep -oP 'Execution Time: .* ms')" "$replication_lag"
 
 done
+
+echo
+echo "pg_stat_replication"
+echo
+
+docker exec primary psql -U postgres -c 'SELECT client_addr, application_name, state, sync_state, write_lag, flush_lag, replay_lag, sent_lsn, write_lsn, flush_lsn, replay_lsn FROM pg_stat_replication';

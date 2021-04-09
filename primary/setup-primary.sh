@@ -12,7 +12,9 @@ echo "Posgres is ready"
 # Create user with accees to replication pseudo-DB
 psql -U postgres -c "CREATE USER replicator WITH REPLICATION ENCRYPTED PASSWORD '${REPLICATOR_PASS}';"
 
-echo "host replication replicator ${STAND_BY_ADDR} md5" >> "$PGDATA/pg_hba.conf"
+echo "host replication replicator ${STAND_BY_ADDR}/${NETWORK_MASK} md5" >> "$PGDATA/pg_hba.conf"
+
+echo "DEBUG: ${STAND_BY_ADDR}/${NETWORK_MASK}"
 
 cat << FOE >> "$PGDATA/postgresql.conf"
 
@@ -43,18 +45,6 @@ if [ $SYNC_REPLICATION_ON == 1 ]; then
 FOE
 
 fi
-
-# Create DB fro tests
-psql -U postgres -c 'CREATE DATABASE play;'
-
-psql -U postgres -d play -c "
-
-CREATE TABLE IF NOT EXISTS dates_series (
-   id serial PRIMARY KEY,
-   date timestamp,
-   value int
-);
-"
 
 psql -U postgres -c "SELECT pg_reload_conf();"
 

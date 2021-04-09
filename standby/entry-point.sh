@@ -274,14 +274,14 @@ init_standby() {
 
     echo "Make a .pass file"
     #export PGPASSFILE="$HOME"/.pgpass
-    echo "${PRIMARY_ADDR}:5432:replication:replicator:${REPLICATOR_PASS}" > "$HOME"/.pgpass
+    echo "primary:5432:replication:replicator:${REPLICATOR_PASS}" > "$HOME"/.pgpass
     chown postgres:postgres "$HOME"/.pgpass
     chmod 600 "$HOME"/.pgpass
 
     echo "Make a base bake up"
     for ((i=0;i<=4;i++)); do
-    if  pg_isready -h "$PRIMARY_ADDR" -U postgres; then
-        pg_basebackup -h "$PRIMARY_ADDR" -U replicator -D "${PGDATA}/" -Fp -Xs -R -w
+    if  pg_isready -h primary -U postgres; then
+        pg_basebackup -h primary -U replicator -D "${PGDATA}/" -Fp -Xs -R -w
 		echo "cluster_name = replica" >> "${PGDATA}/"postgresql.conf
         break;
     else
