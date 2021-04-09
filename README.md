@@ -1,13 +1,11 @@
 # PostgreSQL Physical Streaming Replication
 Репозиторий содержит практически всё необходимое для запуска нескольких docker контейнеров c СУБД PostgreSQL в режиме physical streaming replication (синхронном или асинхронном) 
 
-### Primary
-
-В директории [/primary](/primary) содержаться Dockerfile для создания PostgreSQL Primary Node и различные вспомогательные скрипты:
+### primary
 
 `setup-primary.sh` - этот сценарий копируется в образ при сборке и запускается во время старта контейнера. В нём выполняется создание роли для подключения сервера, работающего в режиме standby, добавляются параметры логирования в `postgresql.conf` и включается (если указано при запуске) синхронная репликация с сервером с именем `replica`. 
 
-### Standby
+### standby
 
 `entry-point.sh` - точка запуска контейнера. Отличается от оригинального скрипта [entry-point.sh](https://github.com/docker-library/postgres/blob/a7aa19b8501df4c459dad78fd18e2b36fded9643/12/alpine/Dockerfile), взятого из официального [репозтория postgresql docker image](https://github.com/docker-library/docs/tree/master/postgres) блоком, в котором выполняется pg_basebackup и перевод кластера в режим standby.
 
@@ -50,7 +48,7 @@ standby   entry-point.sh postgres         Up      5432/tcp
 
 4. C помощью скрипта [test-replication-lag.sh](/test-replication-lag.sh) можно примерно оценить задержку репликации.
 
-В нем создаётся база данных `play` с таблицей `dates_series`, которая заполняется с помощью [generate_series](https://www.postgresql.org/docs/12/functions-srf.html). При каждой вствка выводится время выполения запроса и примерное время задержки репликации, которое вычисляется по формуле `now()-pg_last_xact_replay_timestamp()` на стороне standby сервера.
+В нем создаётся база данных `play` с таблицей `dates_series`, которая заполняется с помощью [generate_series](https://www.postgresql.org/docs/12/functions-srf.html). При каждой вставке выводится время выполения запроса и примерное время задержки репликации, которое вычисляется по формуле `now()-pg_last_xact_replay_timestamp()` на стороне standby сервера.
 
 
 5. C помощью [pgbench.sh](pgbench.sh) можно запустить простой бенчмарк. Скрипт состоит всего из 3 команд: 
@@ -78,7 +76,7 @@ standby   entry-point.sh postgres         Up      5432/tcp
      tps = 2980.141159 (including connections establishing)  
      tps = 2980.558788 (excluding connections establishing)   
      
-6. Теперь получив достатчное количесво логов, ожно проанализировать и с помощью bgbadger
+6. Теперь, получив достатчное количесво логов, можно проанализировать их с помощью bgbadger
 
   ```sh
   docker cp primary:/var/lib/postgresql/data/pg_log  .
